@@ -21,6 +21,7 @@ public class PlayerMove : MonoBehaviour {
 	public bool isWalking { get; set; }
 	public bool isCrouching { get; set; }
 	public bool isRunning { get; set; }
+	public bool isStationary { get; set; }
 
 	// Private variables
 	private CharacterController cc;
@@ -63,6 +64,14 @@ public class PlayerMove : MonoBehaviour {
 		Vector3 forwardMovement = transform.forward * verticalInput;
 		Vector3 sidewaysMovement = transform.right * horizontalInput;
 
+		// If the player is not moving, set them to a stationary state
+		if (horizontalInput == 0 && verticalInput == 0) {
+			isStationary = true;
+		} 
+		else {
+			isStationary = false;
+		}
+
 		// Move the character using these values multiplied by the player movement speed, clamping the magnitude of
 		// this movement to ensure that diagonal movement is the same speed as horizontal/vertical movement
 		cc.SimpleMove(Vector3.ClampMagnitude(forwardMovement + sidewaysMovement, 1.0f) * movementSpeed);
@@ -101,7 +110,7 @@ public class PlayerMove : MonoBehaviour {
 
 	// Function that sets the player into a toggled walking state
 	private void ToggleWalk(){
-		if (Input.GetKeyDown (walkToggleKey) && !isWalking) {
+		if (Input.GetKeyDown (walkToggleKey) && !isWalking && !isCrouching) {
 			isWalking = true;
 		} 
 		else if (Input.GetKeyDown(walkToggleKey) && isWalking){
@@ -123,6 +132,7 @@ public class PlayerMove : MonoBehaviour {
 		// When the "crouchKey" is held down, put the player into a crouching state by setting
 		// the "isCrouching" boolean to true and setting the character controller height to half
 		if (Input.GetKey (crouchKey) && !isJumping && !isCrouching) {
+			isWalking = false;
 			isCrouching = true;
 			cc.transform.localPosition = new Vector3 (cc.transform.position.x, cc.transform.position.y - 0.49f, cc.transform.position.z);
 			cc.height = cc.height / 2;
